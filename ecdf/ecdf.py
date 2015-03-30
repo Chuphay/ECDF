@@ -55,7 +55,7 @@ def getData(university, files):
             f = open(this_file)
             for line in f:
                 pass
-        except (FileNotFoundError, IOError):
+        except IOError:
             error_string = "Could not open "+ str(this_file)+". Check that the path is correct."
             raise FileError (error_string) 
 
