@@ -50,15 +50,57 @@ def parseArg(argv):
 
 
 def getData(university, files):
+
+    if not isinstance(files, list): 
+        """Check to make sure files is a list"""
+        raise ValueError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
+
+    if not isinstance(university, str): 
+        """Check to make sure university is a string"""
+        raise ValueError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
+        
+    if not all([isinstance(f, str) for f in files]):
+        """Check to make sure that all the files are strings"""
+        raise ValueError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
+
+    if not all([f[-4:] == ".csv" for f in files]):
+        """Check to make sure that all the files are in .csv format"""
+        raise FileError('This program requires all files to have a .csv extension')
+
+
+    data = {}
     for this_file in files:
         try:
             f = open(this_file)
             for line in f:
-                pass
+                data_line = line.strip().split(",")
+                error_string = "The file "+str(this_file)+" is not formatted in the correct format."
+                if(len(data_line) != 5):
+                    raise FileError(error_string)
+                try:
+                    print(data_line)
+                    student_id = int(data_line[0])
+                    score = float(data_line[4])
+                except ValueError:
+                    raise FileError(error_string)
+                    
+                if((data_line[2][0] != '"') or (data_line[2][-1] != '"')):
+                    raise FileError(error_string)
+
+                school = data_line[2].strip('"')
+                if(school == university):
+                    try:
+                        data[student_id].append(score)
+                    except KeyError:
+                        data[student_id] = [score]
+
+                
         except IOError:
             error_string = "Could not open "+ str(this_file)+". Check that the path is correct."
             raise FileError (error_string) 
-
+        else:
+            f.close()
+    print(data)
 
 if __name__ == '__main__':
     school, files = parseArg(sys.argv)

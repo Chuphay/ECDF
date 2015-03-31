@@ -54,11 +54,36 @@ class TestParseArg(unittest.TestCase):
         self.assertEqual(("Port Chester University", ["file1.csv", "file2.csv", "file3.txt"]), result)
 
 class TestGetData(unittest.TestCase):
-    """I will divide my tests into two parts, first inputs that should return errors and then, secondly, inputs that should return correct output"""
+    """I will divide my tests into three parts, first inputs that should return errors and then, secondly, inputs that pass into getData, but then return bad data. And finally I'll check good inputs."""
+
+    def test_wrong_type_of_arguments(self):
+        """testing to make sure it only accepts a string and a list"""
+        self.assertRaises(ValueError, getData, "string", "string")
+        self.assertRaises(ValueError, getData, "string", 3.14)
+        self.assertRaises(ValueError, getData, 3.14, "string")
+        self.assertRaises(ValueError, getData, 3.14, [1,"string"])
+        self.assertRaises(ValueError, getData, "string", [1,"string"])
+
+    def test_file_extension(self):
+        """testing to make sure it accepts only .csv files"""
+        self.assertRaises(FileError, getData, "string", ["file1.csv","file2.txt"])
+
 
     def test_no_file_present(self):
         """test to make sure that the file asked for is actually found"""
         self.assertRaises(FileError, getData, "ABC University", ["file1.csv", "not_a_file.csv", "file2.csv"])
+
+    #Now, I will check for bad data
+    def test_for_correct_number_of_elements(self):
+        """testing that all lines of the files have the correct number of elements"""
+        self.assertRaises(FileError, getData, "ABC University", ["tests/bad1.csv"])
+        self.assertRaises(FileError, getData, "ABC University", ["tests/bad2.csv"])
+        self.assertRaises(FileError, getData, "ABC University", ["tests/bad3.csv"])
+        self.assertRaises(FileError, getData, "ABC University", ["tests/bad4.csv"])
+
+
+
+
 
 
 
