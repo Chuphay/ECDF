@@ -76,16 +76,16 @@ def getData(university, files):
                 data_line = line.strip().split(",")
                 error_string = "The file "+str(this_file)+" is not formatted in the correct format."
                 if(len(data_line) != 5):
-                    raise FileError(error_string)
+                    raise FileError(error_string+" Length != 5")
                 try:
                     print(data_line)
                     student_id = int(data_line[0])
                     score = float(data_line[4])
                 except ValueError:
-                    raise FileError(error_string)
+                    raise FileError(error_string+" student_id or score not numeric")
                     
                 if((data_line[2][0] != '"') or (data_line[2][-1] != '"')):
-                    raise FileError(error_string)
+                    raise FileError(error_string+" The school name is not surrounded by quotes as defined in the API")
 
                 school = data_line[2].strip('"')
                 if(school == university):
@@ -94,10 +94,12 @@ def getData(university, files):
                     except KeyError:
                         data[student_id] = [score]
 
-                
+        except FileError as e:
+            raise(e)                
         except IOError:
             error_string = "Could not open "+ str(this_file)+". Check that the path is correct."
-            raise FileError (error_string) 
+            raise FileError (error_string)
+
         else:
             f.close()
     print(data)
