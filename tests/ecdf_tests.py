@@ -30,6 +30,7 @@ class TestParseArg(unittest.TestCase):
         self.assertRaises(InvalidArgumentError, parseArg, "string")
         self.assertRaises(InvalidArgumentError, parseArg, True)
         self.assertRaises(InvalidArgumentError, parseArg, 3.14)
+        self.assertRaises(InvalidArgumentError, parseArg, None)
 
     def test_no_arguments(self):
         """parseArg should raise an exception if there were no arguments"""
@@ -67,11 +68,13 @@ class TestGetData(unittest.TestCase):
 
     def test_wrong_type_of_arguments(self):
         """testing to make sure it only accepts a string and a list"""
-        self.assertRaises(ValueError, getData, "string", "string")
-        self.assertRaises(ValueError, getData, "string", 3.14)
-        self.assertRaises(ValueError, getData, 3.14, "string")
-        self.assertRaises(ValueError, getData, 3.14, [1,"string"])
-        self.assertRaises(ValueError, getData, "string", [1,"string"])
+        self.assertRaises(InvalidArgumentError, getData, "string", "string")
+        self.assertRaises(InvalidArgumentError, getData, "string", 3.14)
+        self.assertRaises(InvalidArgumentError, getData, 3.14, "string")
+        self.assertRaises(InvalidArgumentError, getData, 3.14, [1,"string"])
+        self.assertRaises(InvalidArgumentError, getData, "string", [1,"string"])
+        self.assertRaises(InvalidArgumentError, getData, "string", None)
+        self.assertRaises(InvalidArgumentError, getData, None, ["string","string"])
 
     def test_file_extension(self):
         """testing to make sure it accepts only .csv files"""
@@ -99,7 +102,49 @@ class TestGetData(unittest.TestCase):
         """testing to make sure that the student Id is an integer""" 
         self.assertRaises(FileError, getData, "ABC University", ["tests/bad4.csv"])
 
+    def test_for_no_school(self):
+        """If the files do not contain any information about that school, we want an error"""
+        self.assertRaises(FileError, getData, "XYZ University",  ['tests/file1.csv',"tests/file2.csv"]) 
+
     #Now, I will check that the output is correct
+    def test_ABC_University(self):
+        """checking over two csv files for ABC University"""
+        result = getData("ABC University", ['tests/file1.csv',"tests/file2.csv"]) 
+        self.assertEqual([55.0, 62.5, 83.5], result)
+
+    def test_DEF_University(self):
+        """checking over one csv file for DEF University"""
+        result = getData("DEF University", ['tests/file1.csv']) 
+        self.assertEqual([10.0, 35.0, 45.0], result)
+
+    def test_one_entry(self):
+        """Checking if it handles only one entry"""
+        result = getData("Port Chester University", ['tests/file1.csv']) 
+        self.assertEqual([75.5], result)
+        
+
+class TestMakeECDF(unittest.TestCase):
+    """I will divide my tests into two parts. First I will check that invalid arguments raise errors. Then I will check that valid arguments return correct output"""
+
+    def test_wrong_type_of_argument(self):
+        """testing for non-array arguments"""
+        self.assertRaises(InvalidArgumentError, makeECDF, "string")
+        self.assertRaises(InvalidArgumentError, makeECDF, True)
+        self.assertRaises(InvalidArgumentError, makeECDF, 3.14)
+        self.assertRaises(InvalidArgumentError, makeECDF, None)
+
+    def test_array_has_elements(self):
+        """checking that it rejects []"""
+        self.assertRaises(InvalidArgumentError, makeECDF, [])
+
+    def test_array_is_sorted(self):
+        """Since the input should be sorted, it should reject non-sorted data"""
+        self.assertRaises(InvalidArgumentError, makeECDF, [3,2])
+
+    def test_answer(self):
+        ecdf = ECDF([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2])
+        result = getData("Port Chester University", ['tests/file1.csv']) 
+        self.assertEqual([75.5], result)
 
 
 

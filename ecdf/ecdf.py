@@ -53,32 +53,34 @@ def getData(university, files):
 
     if not isinstance(files, list): 
         """Check to make sure files is a list"""
-        raise ValueError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
+        raise InvalidArgumentError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
 
     if not isinstance(university, str): 
         """Check to make sure university is a string"""
-        raise ValueError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
+        raise InvalidArgumentError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
         
     if not all([isinstance(f, str) for f in files]):
         """Check to make sure that all the files are strings"""
-        raise ValueError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
+        raise InvalidArgumentError('Format should be getData("ABC University", ["file1.csv", "file2.csv"]')
 
     if not all([f[-4:] == ".csv" for f in files]):
         """Check to make sure that all the files are in .csv format"""
         raise FileError('This program requires all files to have a .csv extension')
 
-
+    #We will temporarily put the student test scores in a dictionary
     data = {}
+
     for this_file in files:
         try:
             f = open(this_file)
+            error_string = "The file "+str(this_file)+" is not formatted in the correct format."
+
             for line in f:
                 data_line = line.strip().split(",")
-                error_string = "The file "+str(this_file)+" is not formatted in the correct format."
+                
                 if(len(data_line) != 5):
                     raise FileError(error_string+" Length != 5")
                 try:
-                    print(data_line)
                     student_id = int(data_line[0])
                     score = float(data_line[4])
                 except ValueError:
@@ -102,8 +104,37 @@ def getData(university, files):
 
         else:
             f.close()
-    print(data)
+
+    if(len(data) == 0):
+        raise FileError ("Did not find any data for "+university)
+
+
+    #Now that we have all of the student data, we will want to get the average for each student
+    output = []  
+    for student in data:
+        output.append(sum(data[student])/len(data[student]))
+
+    #Finally, we will want to return the sorted data
+    return sorted(output)
+
+
+def makeECDF(data):
+    if not isinstance(data, list): 
+        """Check to make sure data is a list"""
+        raise InvalidArgumentError("makeECDF only accepts lists")
+    
+    if sorted(data) != data:
+        """Checking to make sure the data is sorted"""
+        raise InvalidArgumentError("makeECDF accepts only sorted lists")
+
+    if len(data) == 0:
+        """There must be some data for us to run ECDF on"""
+        raise InvalidArgumentError("The length of the data was zero. There must be at least one data point.")
+
+
+    pass
 
 if __name__ == '__main__':
     school, files = parseArg(sys.argv)
-    getData(school, files)
+    data = getData(school, files)
+    makeECDF(data)
