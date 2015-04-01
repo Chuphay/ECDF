@@ -132,9 +132,30 @@ def makeECDF(data):
         raise InvalidArgumentError("The length of the data was zero. There must be at least one data point.")
 
 
-    pass
+    n = len(data)
+    out = []
+    for i in range(100):
+        out.append(data[int(n*i/100)])
+    return out
+
+def printECDF(ecdf):
+
+    if not isinstance(ecdf, list): 
+        """Check to make sure data is a list"""
+        raise InvalidArgumentError("printECDF only accepts lists")
+    
+    if sorted(ecdf) != ecdf:
+        """Checking to make sure the data is sorted"""
+        raise InvalidArgumentError("printECDF accepts only sorted lists")
+
+    if len(ecdf) != 100:
+        """The must be some data for us to run ECDF on"""
+        raise InvalidArgumentError("The length of the data was not 100.")
+    
+    
 
 if __name__ == '__main__':
     school, files = parseArg(sys.argv)
     data = getData(school, files)
-    makeECDF(data)
+    ecdf = makeECDF(data)
+    print(printECDF(ecdf))

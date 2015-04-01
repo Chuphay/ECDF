@@ -141,10 +141,44 @@ class TestMakeECDF(unittest.TestCase):
         """Since the input should be sorted, it should reject non-sorted data"""
         self.assertRaises(InvalidArgumentError, makeECDF, [3,2])
 
-    def test_answer(self):
-        ecdf = ECDF([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2])
-        result = getData("Port Chester University", ['tests/file1.csv']) 
-        self.assertEqual([75.5], result)
+    def test_length_100(self):
+        result = makeECDF(sorted([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2]))
+        self.assertEqual(100, len(result))
+
+    def test_sorted(self):
+        result = makeECDF(sorted([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2]))
+        self.assertEqual(result, sorted(result))
+
+    def test_correct_answer(self):
+        result = makeECDF(sorted([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2]))
+        self.assertEqual([-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77]
+, result)
+
+
+class TestPrintECDF(unittest.TestCase):
+
+
+
+
+    def test_wrong_type_of_argument(self):
+        """testing for non-array arguments"""
+        self.assertRaises(InvalidArgumentError, printECDF, "string")
+        self.assertRaises(InvalidArgumentError, printECDF, True)
+        self.assertRaises(InvalidArgumentError, printECDF, 3.14)
+        self.assertRaises(InvalidArgumentError, printECDF, None)
+
+    def test_for_non_sorted_elements(self):
+        bad_data = [3.77, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, -4.5]
+        self.assertRaises(InvalidArgumentError, printECDF, bad_data)
+
+    def test_for_not_100_elements(self):
+        bad_data2 = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+        self.assertRaises(InvalidArgumentError, printECDF, bad_data2)
+
+
+        
+
+
 
 
 
