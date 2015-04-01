@@ -85,9 +85,9 @@ def getData(university, files):
                     score = float(data_line[4])
                 except ValueError:
                     raise FileError(error_string+" student_id or score not numeric")
-                    
+                """    
                 if((data_line[2][0] != '"') or (data_line[2][-1] != '"')):
-                    raise FileError(error_string+" The school name is not surrounded by quotes as defined in the API")
+                    raise FileError(error_string+" The school name is not surrounded by quotes as defined in the API")"""
 
                 school = data_line[2].strip('"')
                 if(school == university):
@@ -138,11 +138,11 @@ def makeECDF(data):
         out.append(data[int(n*i/100)])
     return out
 
-def printECDF(ecdf):
+def printECDF(school, ecdf):
 
     if not isinstance(ecdf, list): 
         """Check to make sure data is a list"""
-        raise InvalidArgumentError("printECDF only accepts lists")
+        raise InvalidArgumentError("printECDF needs a list")
     
     if sorted(ecdf) != ecdf:
         """Checking to make sure the data is sorted"""
@@ -151,6 +151,33 @@ def printECDF(ecdf):
     if len(ecdf) != 100:
         """The must be some data for us to run ECDF on"""
         raise InvalidArgumentError("The length of the data was not 100.")
+
+    if not isinstance(school, str): 
+        """Check to make sure data is a list"""
+        raise InvalidArgumentError("printECDF needs the name of a school")
+
+    output = school+ " students\n\npercentile\tmean_test_score\n"
+    for i in range(100):
+        output = output+str(i+1)+'\t'+str(ecdf[i])+'\n'
+
+
+    return output
+
+
+
+
+"""
+
+
+Port Chester University students
+
+percentile    mean_test_score
+1                  0
+2                  0
+3                  5.25
+...               ...
+100              100
+"""
     
     
 
@@ -158,4 +185,4 @@ if __name__ == '__main__':
     school, files = parseArg(sys.argv)
     data = getData(school, files)
     ecdf = makeECDF(data)
-    print(printECDF(ecdf))
+    print(printECDF(school, ecdf)[:100])

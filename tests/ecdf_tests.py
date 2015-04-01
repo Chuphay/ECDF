@@ -162,18 +162,28 @@ class TestPrintECDF(unittest.TestCase):
 
     def test_wrong_type_of_argument(self):
         """testing for non-array arguments"""
-        self.assertRaises(InvalidArgumentError, printECDF, "string")
-        self.assertRaises(InvalidArgumentError, printECDF, True)
-        self.assertRaises(InvalidArgumentError, printECDF, 3.14)
-        self.assertRaises(InvalidArgumentError, printECDF, None)
+        self.assertRaises(InvalidArgumentError, printECDF, "string", "string")
+        self.assertRaises(InvalidArgumentError, printECDF, "string", True)
+        self.assertRaises(InvalidArgumentError, printECDF, "string", 3.14)
+        self.assertRaises(InvalidArgumentError, printECDF, "string", None)
+        self.assertRaises(InvalidArgumentError, printECDF, [1,2], [0,1])
+        self.assertRaises(InvalidArgumentError, printECDF, True, [0,1])
+        self.assertRaises(InvalidArgumentError, printECDF, 3.14, [0,1])
+        self.assertRaises(InvalidArgumentError, printECDF, None, [0,1])
 
     def test_for_non_sorted_elements(self):
         bad_data = [3.77, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, -4.5]
-        self.assertRaises(InvalidArgumentError, printECDF, bad_data)
+        self.assertRaises(InvalidArgumentError, printECDF, "school", bad_data)
 
     def test_for_not_100_elements(self):
         bad_data2 = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
-        self.assertRaises(InvalidArgumentError, printECDF, bad_data2)
+        self.assertRaises(InvalidArgumentError, printECDF, "school", bad_data2)
+
+
+    def test_the_first_few_lines(self):
+        good_data = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77]
+        result = printECDF("ABC University", good_data)[:58]
+        self.assertEqual("ABC University students\n\npercentile\tmean_test_score\n1\t-4.5", result)
 
 
         
