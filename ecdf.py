@@ -185,4 +185,4 @@ if __name__ == '__main__':
     school, files = parseArg(sys.argv)
     data = getData(school, files)
     ecdf = makeECDF(data)
-    print(printECDF(school, ecdf)[:100])
+    print(printECDF(school, ecdf))
