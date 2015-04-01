@@ -6,6 +6,7 @@ from ecdf.ecdf import *
 import unittest
 
 scipy_imported = False #this will check to see if I loaded ECDF from the scipy stack
+pandas_imported = False #this will check if Pandas was imported
 try:
     import numpy as np
     from statsmodels.distributions.empirical_distribution import ECDF
@@ -13,10 +14,16 @@ try:
 except ImportError:
     print("Could not load statsmodels. Will not be able to test all aspects of ecdf")
 
+try:
+    import pandas as pd
+except ImportError:
+    print("Could not load Pandas. Will not be able to test all aspects of ecdf")
+
+
 
 
 class TestParseArg(unittest.TestCase):
-    """I will divide my tests into two parts, first inputs that should return errors and then, secondly, inputs that should return correct output"""
+    """I will divide my tests into two parts. First I will check that invalid arguments raise errors. Then I will check that valid arguments return correct output"""
 
     def test_wrong_type_of_argument(self):
         """testing for non-array arguments"""
@@ -53,8 +60,10 @@ class TestParseArg(unittest.TestCase):
         result = parseArg(["ecdf.py", "--school","Port Chester University",'file1.csv',"file2.csv", "file3.txt"]) 
         self.assertEqual(("Port Chester University", ["file1.csv", "file2.csv", "file3.txt"]), result)
 
+
+
 class TestGetData(unittest.TestCase):
-    """I will divide my tests into three parts, first inputs that should return errors and then, secondly, inputs that pass into getData, but then return bad data. And finally I'll check good inputs."""
+    """I will divide my tests into three parts. First I will check for arguments that should return errors. Then, I will check for bad data in the csv file itself. Finally I will check that good inputs return correct results."""
 
     def test_wrong_type_of_arguments(self):
         """testing to make sure it only accepts a string and a list"""
@@ -77,11 +86,20 @@ class TestGetData(unittest.TestCase):
     def test_for_correct_number_of_elements(self):
         """testing that all lines of the files have the correct number of elements"""
         self.assertRaises(FileError, getData, "ABC University", ["tests/bad1.csv"])
+
+    def test_for_no_quotes(self):
+        """testing for quotes around the University name"""
         self.assertRaises(FileError, getData, "ABC University", ["tests/bad2.csv"])
+
+    def test_for_score_is_float(self):
+        """test to make sure that the test score is a float"""
         self.assertRaises(FileError, getData, "ABC University", ["tests/bad3.csv"])
+
+    def test_for_student_id(self): 
+        """testing to make sure that the student Id is an integer""" 
         self.assertRaises(FileError, getData, "ABC University", ["tests/bad4.csv"])
 
-
+    #Now, I will check that the output is correct
 
 
 
