@@ -5,17 +5,11 @@ I have decided to have four main functions in the program: parseArg, getData, ma
 from ecdf.ecdf import *
 import unittest
 
-scipy_imported = False #this will check to see if I loaded ECDF from the scipy stack
 pandas_imported = False #this will check if Pandas was imported
 try:
     import numpy as np
-    from statsmodels.distributions.empirical_distribution import ECDF
-    scipy_imported = True
-except ImportError:
-    print("Could not load statsmodels. Will not be able to test all aspects of ecdf")
-
-try:
     import pandas as pd
+    pandas_imported = True
 except ImportError:
     print("Could not load Pandas. Will not be able to test all aspects of ecdf")
 
@@ -185,7 +179,42 @@ class TestPrintECDF(unittest.TestCase):
         result = printECDF("ABC University", good_data)[:58]
         self.assertEqual("ABC University students\n\npercentile\tmean_test_score\n1\t-4.5", result)
 
+    def test_the_last_line(self):
+        good_data = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77]
 
+        result = printECDF("ABC University", good_data)[-9:]
+        self.assertEqual("100\t3.77\n", result)
+
+
+     
+class TestWholeProgram(unittest.TestCase): 
+    def test_ABC_University_file1(self):
+        school, files = parseArg(["ecdf.py","--school","ABC University","tests/file1.csv"])
+        data = getData(school, files)
+        ecdf = makeECDF(data)
+        self.assertEqual(100, len(ecdf))
+
+        if(pandas_imported):
+            df = pd.read_csv("tests/file1.csv",  names = ['student_id', 'course','university','date', 'score'])
+            abc = df[df['university'] == "ABC University"]
+            m = sorted(abc.groupby("student_id").mean().values)
+            for i in range(100):
+                self.assertEqual(m[int((i*len(m))/100)][0], ecdf[i])
+
+    def test_XYZ_University_big1_big2(self):
+        school, files = parseArg(["ecdf.py","--school","XYZ University","tests/big1.csv","tests/big2.csv"])
+        data = getData(school, files)
+        ecdf = makeECDF(data)
+        self.assertEqual(100, len(ecdf))
+
+        if(pandas_imported):
+            df = pd.read_csv("tests/big1.csv",  names = ['student_id', 'course','university','date', 'score'])
+            df = df.append(pd.read_csv("tests/big2.csv",  names = ['student_id', 'course','university','date', 'score']))
+            xyz = df[df['university'] == "XYZ University"]
+            m = sorted(xyz.groupby("student_id").mean().values)
+    
+            for i in range(100):
+                self.assertEqual(m[int((i*len(m))/100)][0], ecdf[i])
         
 
 
