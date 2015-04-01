@@ -215,17 +215,29 @@ class TestWholeProgram(unittest.TestCase):
     
             for i in range(100):
                 self.assertEqual(m[int((i*len(m))/100)][0], ecdf[i])
+
+    def test_XYZ_print_first_few_lines(self):
+        school, files = parseArg(["ecdf.py","--school","XYZ University","tests/big1.csv","tests/big2.csv"])
+        data = getData(school, files)
+        ecdf = makeECDF(data)
+        result = printECDF(school, ecdf)
+        self.assertEqual(result[:58], "XYZ University students\n\npercentile\tmean_test_score\n1\t30.3")
+
+    def test_XYZ_last_line(self):
+        school, files = parseArg(["ecdf.py","--school","XYZ University","tests/big1.csv","tests/big2.csv"])
+        data = getData(school, files)
+        ecdf = makeECDF(data)
+        result = printECDF(school, ecdf)
+        self.assertEqual(result[-22:], "100\t92.22222222222223\n")
+
         
-
-
-
-
-
-
-
-
-
-
+    def test_weird_quotes(self):
+        weird_course = "”Algebra”"
+        weird_school = "”Port Chester University”"
+        school, files = parseArg(["ecdf.py","--school",weird_school,"tests/weird.csv"])
+        self.assertEqual(school, weird_school)
+        data = getData(school, files)
+        self.assertEqual(data, [75.5])
 
 
 if __name__ == '__main__':
