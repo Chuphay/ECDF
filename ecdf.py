@@ -22,6 +22,7 @@ percentile    mean_test_score
 
 import sys
 
+#Define two error classes that can be raised for invalid arguments and file errors
 class InvalidArgumentError(ValueError): pass
 class FileError(IOError): pass
 
@@ -72,7 +73,7 @@ def getData(university, files):
             f = open(this_file)
 
             #if the file did not open, an exception will be raised, and the following code will not run.
-            #Assuming it did open, there still may be problems with the data in the csv file
+            #Assuming the file did open, there still may be problems with the data in the csv file
             #And much of the following code checks for that
             error_string = "The file "+str(this_file)+" is not formatted in the correct format."
             for line in f:
