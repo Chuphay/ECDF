@@ -1,16 +1,13 @@
-"""ECDF
-Suppose you have multiple text files, each containing lines of the form:
-student_id,course_name,school_name,test_date,test_score
+"""This is an implementation of the Empirical Cumulative Distribution Function.
+The program should be invoked in the following manner:
 
-An example valid line could look like the following (note that the files will not have headers):
-9812345,"Algebra","Port Chester University",2015-03-17,75.5
-
-Write a program to compute the empirical cumulative distribution function of the average test score of students who attended a particular school, which is specified as a parameter to the program.
-
-An example invocation of the program would be:
 python ecdf.py --school "Port Chester University" input_file1.csv input_file2.csv
 
-The expected output from invoking such a program would be of the following form (use a single tab character to delimit field values, and display the results to standard output):
+Where the csv files should have lines in the following form (without headers):
+
+student_id,course_name,school_name,test_date,test_score
+
+The program will then print the percentiles (without interpolation) in the following form: 
 
 Port Chester University students
 
@@ -47,9 +44,8 @@ def parseArg(argv):
 
 
 
-
-
 def getData(university, files):
+    """This function will open and read the files supplied and then average the grades of each students from the supplied university. The output will be a sorted list of average test scores, one for each student"""
 
     if not isinstance(files, list): 
         """Check to make sure files is a list"""
@@ -70,14 +66,17 @@ def getData(university, files):
     #We will temporarily put the student test scores in a dictionary
     data = {}
 
+    #Below is the code to open and read the csv files
     for this_file in files:
         try:
             f = open(this_file)
-            error_string = "The file "+str(this_file)+" is not formatted in the correct format."
 
+            #if the file did not open, an exception will be raised, and the following code will not run.
+            #Assuming it did open, there still may be problems with the data in the csv file
+            #And much of the following code checks for that
+            error_string = "The file "+str(this_file)+" is not formatted in the correct format."
             for line in f:
                 data_line = line.strip().split(",")
-                
                 if(len(data_line) != 5):
                     raise FileError(error_string+" Length != 5")
                 try:
@@ -85,10 +84,15 @@ def getData(university, files):
                     score = float(data_line[4])
                 except ValueError:
                     raise FileError(error_string+" student_id or score not numeric")
-                """    
-                if((data_line[2][0] != '"') or (data_line[2][-1] != '"')):
-                    raise FileError(error_string+" The school name is not surrounded by quotes as defined in the API")"""
-
+                
+                #The following lines have been commented out, 
+                #because requiring that the school name have quotes seemed too restrictive
+                #
+                #if((data_line[2][0] != '"') or (data_line[2][-1] != '"')):
+                #    raise FileError(error_string+" The school name is not surrounded by quotes as defined in the API")
+                
+                #Now that we have checked that the data is in the correct form
+                #We are ready to parse it, and collect the data for each student
                 school = data_line[2].strip('"')
                 if(school == university):
                     try:
@@ -96,6 +100,7 @@ def getData(university, files):
                     except KeyError:
                         data[student_id] = [score]
 
+        #We catch the raised errors
         except FileError as e:
             f.close()
             raise(e)  
@@ -116,11 +121,13 @@ def getData(university, files):
     for student in data:
         output.append(sum(data[student])/len(data[student]))
 
-    #Finally, we will want to return the sorted data
+    #Finally, we return the sorted data
     return sorted(output)
 
 
 def makeECDF(data):
+    """This function will take the average test scores made by getData and calculate the 100 percentiles without interpolation. It will the output an array of 100 floats that correspond to the percentiles"""
+
     if not isinstance(data, list): 
         """Check to make sure data is a list"""
         raise InvalidArgumentError("makeECDF only accepts lists")
@@ -141,6 +148,7 @@ def makeECDF(data):
     return out
 
 def printECDF(school, ecdf):
+    """This function will take the output of makeECDF and return a string that has been formatted to meet the requirements stipulated""" 
 
     if not isinstance(ecdf, list): 
         """Check to make sure data is a list"""
@@ -162,25 +170,8 @@ def printECDF(school, ecdf):
     for i in range(100):
         output = output+str(i+1)+'\t'+str(ecdf[i])+'\n'
 
-
     return output
 
-
-
-
-"""
-
-
-Port Chester University students
-
-percentile    mean_test_score
-1                  0
-2                  0
-3                  5.25
-...               ...
-100              100
-"""
-    
     
 
 if __name__ == '__main__':
