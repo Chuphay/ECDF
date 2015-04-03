@@ -1,4 +1,4 @@
-"""Unit tests for ECDF, an empirical cumulative distribution function finder. Since I am using a test-first development strategy, there will be some comments in this script that describe my thinking process as I build the package.
+"""Unit tests for ECDF, an empirical cumulative distribution function finder.
 
 I have decided to have four main functions in the program: parseArg, getData, makeECDF, printECDF. ParseArg will take the arguments provided by the user and parse them to make sure that they are valid. GetData will then take those arguments and scan through the selected files for the relevant information. MakeECDF will then take that data and return the ECDF in a compact form. PrintECDF will take the ECDF provided by MakeECDF and return a string that is in the correct format."""
 
@@ -7,13 +7,11 @@ import unittest
 
 pandas_imported = False #this will check if Pandas was imported
 try:
-    import numpy as np
+    import numpy as np #note that np.percentile requires numpy 1.9.0 or later
     import pandas as pd
     pandas_imported = True
 except ImportError:
     print("Could not load Pandas. Will not be able to test all aspects of ecdf")
-
-
 
 
 class TestParseArg(unittest.TestCase):
@@ -83,11 +81,17 @@ class TestGetData(unittest.TestCase):
     def test_for_correct_number_of_elements(self):
         """testing that all lines of the files have the correct number of elements"""
         self.assertRaises(FileError, getData, "ABC University", ["test_data/bad1.csv"])
+    
 
+    #In the example code provided, school names had quotes around them
+    #I ended up deciding this was too restrictive, so I've commented out the test
+    #and the code that raised the error in the ecdf.py file
+    """
     def test_for_no_quotes(self):
-        """testing for quotes around the University name"""
+        #testing for quotes around the University name
         self.assertRaises(FileError, getData, "ABC University", ["test_data/bad2.csv"])
-
+    """
+        
     def test_for_score_is_float(self):
         """test to make sure that the test score is a float"""
         self.assertRaises(FileError, getData, "ABC University", ["test_data/bad3.csv"])
@@ -136,22 +140,24 @@ class TestMakeECDF(unittest.TestCase):
         self.assertRaises(InvalidArgumentError, makeECDF, [3,2])
 
     def test_length_100(self):
+        """We require that the output is an array of length 100"""
         result = makeECDF(sorted([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2]))
         self.assertEqual(100, len(result))
 
     def test_sorted(self):
+        """We require that the array is sorted"""
         result = makeECDF(sorted([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2]))
         self.assertEqual(result, sorted(result))
 
     def test_correct_answer(self):
+        """Here we will test one data set. Later in this test suite, I will test more examples for the entirety of the program""" 
         result = makeECDF(sorted([0.4,0.55,0.7,0.85, 1.97,3.77, -4.5, -2]))
-        self.assertEqual([-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77]
+        self.assertEqual([-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97]
 , result)
 
 
 class TestPrintECDF(unittest.TestCase):
-
-
+    """WE will first test for bad input, and then we will test for good input. Unfortunately, because the output is so verbose, I could only check either the first few lines or the last few lines"""
 
 
     def test_wrong_type_of_argument(self):
@@ -166,20 +172,25 @@ class TestPrintECDF(unittest.TestCase):
         self.assertRaises(InvalidArgumentError, printECDF, None, [0,1])
 
     def test_for_non_sorted_elements(self):
+        """The input is required to be sorted"""
         bad_data = [3.77, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, -4.5]
         self.assertRaises(InvalidArgumentError, printECDF, "school", bad_data)
 
     def test_for_not_100_elements(self):
+        """The input is required to have length 100"""
         bad_data2 = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
         self.assertRaises(InvalidArgumentError, printECDF, "school", bad_data2)
 
 
     def test_the_first_few_lines(self):
+        """Here we will test that at least the first few lines return correctly"""
         good_data = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77]
+        
         result = printECDF("ABC University", good_data)[:58]
         self.assertEqual("ABC University students\n\npercentile\tmean_test_score\n1\t-4.5", result)
 
     def test_the_last_line(self):
+        """And now we check that the last few lines return correctly"""
         good_data = [-4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -4.5, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 1.97, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77, 3.77]
 
         result = printECDF("ABC University", good_data)[-9:]
@@ -187,8 +198,11 @@ class TestPrintECDF(unittest.TestCase):
 
 
      
-class TestWholeProgram(unittest.TestCase): 
+class TestWholeProgram(unittest.TestCase):
+    """Now we will test all aspects of the program. I am mostly going to use Pandas and np.percentile to check with. However, if these are not installed, there are still some tests that should work"""
+
     def test_ABC_University_file1(self):
+        """Checking one small file"""
         school, files = parseArg(["ecdf.py","--school","ABC University","test_data/file1.csv"])
         data = getData(school, files)
         ecdf = makeECDF(data)
@@ -199,9 +213,18 @@ class TestWholeProgram(unittest.TestCase):
             abc = df[df['university'] == "ABC University"]
             m = sorted(abc.groupby("student_id").mean().values)
             for i in range(100):
-                self.assertEqual(m[int((i*len(m))/100)][0], ecdf[i])
+                self.assertEqual(m[int((i*(len(m)-1))/100)][0], ecdf[i])
+
+            #below we will check against np.percentile, but numpy 1.9.0 is required to use interpolation
+            try:
+                for i in range(100):
+                    self.assertEqual(ecdf[i], np.percentile(m,i,interpolation = 'lower'))
+            except TypeError:
+                print("np.percentile requires numpy 1.9.0 or later")
 
     def test_XYZ_University_big1_big2(self):
+        """Checking two big files"""
+ 
         school, files = parseArg(["ecdf.py","--school","XYZ University","test_data/big1.csv","test_data/big2.csv"])
         data = getData(school, files)
         ecdf = makeECDF(data)
@@ -214,9 +237,16 @@ class TestWholeProgram(unittest.TestCase):
             m = sorted(xyz.groupby("student_id").mean().values)
     
             for i in range(100):
-                self.assertEqual(m[int((i*len(m))/100)][0], ecdf[i])
+                self.assertEqual(m[int((i*(len(m)-1))/100)][0], ecdf[i])
+                
+            try:
+                for i in range(100):
+                    self.assertEqual(ecdf[i], np.percentile(m,i,interpolation = 'lower'))
+            except TypeError:
+                print("np.percentile requires numpy 1.9.0 or later")
 
     def test_XYZ_print_first_few_lines(self):
+        """Again, because the output is too verbose, we can only check a few lines"""
         school, files = parseArg(["ecdf.py","--school","XYZ University","test_data/big1.csv","test_data/big2.csv"])
         data = getData(school, files)
         ecdf = makeECDF(data)
@@ -224,21 +254,23 @@ class TestWholeProgram(unittest.TestCase):
         self.assertEqual(result[:58], "XYZ University students\n\npercentile\tmean_test_score\n1\t30.3")
 
     def test_ABC_last_line(self):
+        """Here we check only the last line of the output"""
         school, files = parseArg(["ecdf.py","--school","ABC University","test_data/big1.csv","test_data/big2.csv"])
         data = getData(school, files)
         ecdf = makeECDF(data)
         result = printECDF(school, ecdf)
-        self.assertEqual(result[-9:], "100\t97.0\n")
+        self.assertEqual(result[-22:], "100\t92.57142857142857\n")
 
     
     def test_weird_quotes(self):
+        """In the instructions, there were some non ASCII-characters, I will check that the program can handle these.
+        Unfortunately, wen testing this code in a python2 environment, these tests raised errors"""
         weird_course = "Algebra"
         weird_school = "Port Chester University"
         school, files = parseArg(["ecdf.py","--school",weird_school,"test_data/weird.csv"])
         self.assertEqual(school, weird_school)
-        #data = getData(school, files)
-        #self.assertEqual(data, [75.5])
 
 
 if __name__ == '__main__':
     unittest.main()
+

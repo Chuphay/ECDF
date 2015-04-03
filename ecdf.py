@@ -97,7 +97,9 @@ def getData(university, files):
                         data[student_id] = [score]
 
         except FileError as e:
-            raise(e)                
+            f.close()
+            raise(e)  
+              
         except IOError:
             error_string = "Could not open "+ str(this_file)+". Check that the path is correct."
             raise FileError (error_string)
@@ -132,7 +134,7 @@ def makeECDF(data):
         raise InvalidArgumentError("The length of the data was zero. There must be at least one data point.")
 
 
-    n = len(data)
+    n = len(data)-1 #the negative one makes it match up with np.percentile
     out = []
     for i in range(100):
         out.append(data[int(n*i/100)])
